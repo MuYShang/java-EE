@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd ">
+
+    <!-- 数据源 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/crm"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="123"/>
+    </bean>
+    <!-- sessionFactory -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" >
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"></property>
+        <property name="mappingLocations" >
+            <list>
+                <value>classpath:com/wincom/domain/User.hbm.xml</value>
+            </list>
+        </property>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.wincom.domain.User</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 数据访问层 -->
+    <bean id="userDao" class="com.wincom.dao.UserDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- 业务 -->
+    <bean id="userService" class="com.wincom.service.impl.UserServiceImpl">
+        <property name="userDao" ref="userDao"/>
+    </bean>
+
+    <!-- 用注解来实现事物管理 -->
+    <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+</beans>

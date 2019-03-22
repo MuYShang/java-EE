@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="com.hwl.mybatis.mapper.UserMapper">
+    <select id="findUserById" parameterType="Integer" resultType="com.hwl.mybatis.pojo.User">
+        select * from user where id =#{id}
+    </select>
+
+    <!--如果返回多个结果，mybatis会自动把返回的结果凡在list容器中-->
+    <!--resultMap的配置和返回一个结果的配置一样-->
+    <select id="findUserByName" parameterType="string" resultType="com.hwl.mybatis.pojo.User">
+        select  * from user where username like #{usernsme}
+    </select>
+
+    <!--如果传入简单类型参数${}里面必须写value-->
+    <select id="findUserByName2" parameterType="string" resultType="com.hwl.mybatis.pojo.User">
+        select * from user where username like '%${value}%'
+    </select>
+
+    <select id="queryUserName" parameterType="com.hwl.mybatis.queryVo.QueryVo" resultType="com.hwl.mybatis.pojo.User">
+         select * from user where username like '%${user.username}%'
+    </select>
+
+    <!--查询用户表数据条数-->
+    <select id="queryUserCount" resultType="int">
+        select  count(*) from user
+    </select>
+    <!--保存用户-->
+    <insert id="savaUser" parameterType="com.hwl.mybatis.pojo.User">
+        <!-- selectKey 标签实现主键返回 -->
+        <!-- keyColumn:主键对应的表中的哪一列 -->
+        <!-- keyProperty：主键对应的pojo中的哪一个属性 -->
+        <!-- order：设置在执行insert语句前执行查询id的sql，孩纸在执行insert语句之后执行查询id的sql -->
+        <!-- resultType：设置返回的id的类型 -->
+        <selectKey keyColumn="id" keyProperty="id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into user (username,sex,birthday,address) values (#{username},#{sex},#{birthday},#{address})
+    </insert>
+
+    <!--更新-->
+    <update id="updateUser" parameterType="com.hwl.mybatis.pojo.User">
+        update user set username=#{username} where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteUser" parameterType="int" >
+        delete from user where id = #{id}
+    </delete>
+
+
+    <select id="queryUserWhere" parameterType="com.hwl.mybatis.pojo.User" resultType="com.hwl.mybatis.pojo.User">
+        select id,username,sex,birthday,address from user
+        <where>
+        <if test="sex != null">
+            and sex = #{sex}
+        </if>
+
+        <if test="username != null and username !=''">
+         and username like '%${username}%'
+        </if>
+        </where>
+    </select>
+
+    <!--根据ids查询用户-->
+    <select id="queryUserByIds" parameterType="com.hwl.mybatis.queryVo.QueryVo" resultType="com.hwl.mybatis.pojo.User">
+        select  * from user
+        <where>
+            <!-- foreach标签，进行遍历 -->
+            <!-- collection：遍历的集合，这里是QueryVo的ids属性 -->
+            <!-- item：遍历的项目，可以随便写，，但是和后面的#{}里面要一致 -->
+            <!-- open：在前面添加的sql片段 -->
+            <!-- close：在结尾处添加的sql片段 -->
+            <!-- separator：指定遍历的元素之间使用的分隔符 -->
+
+            <foreach collection="ids" item="item" open="id in (" close=")" separator=",">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+
+
+</mapper>

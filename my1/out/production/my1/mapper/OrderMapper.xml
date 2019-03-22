@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="mapper.OrderMapper">
+    <select id="findOrderAndUser" resultType="pojo.Orders">
+        select orders.'id',orders.'user_id',orders.'number',
+        user.'username',user.'sex' from orders,user where orders.'user_id' = user.'id'
+    </select>
+
+    <select id="queryAll" resultType="pojo.Orders">
+        select id, user_id,number,createtime,note from orders
+    </select>
+</mapper>
